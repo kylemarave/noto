@@ -1,0 +1,15 @@
+---
+description: Noto visual system — dark operational workspace
+alwaysApply: true
+---
+
+# Noto design
+
+- Product name is Noto. Dark theme is default.
+- Font: Inter 400/500 only. Letter-spacing -0.15px.
+- Type sizes only: 12px sidebar, 13px labels/captions, 14px main UI, 24px KPI numbers.
+- Colors: page `#141414`, surface `#181818`, text `#FFFFFF`. Muted text via white opacity. Semantic green/amber/red for status only.
+- Icons: 16px line icons, stroke 1.25. Simple geometry only — no notebook-and-pen composites. Favorites use a 6px color dot.
+- Active nav: white pill, dark text. Primary buttons: white fill, dark text.
+- No extra brand colors, heavy gradients, glassmorphism, or giant identical metric-card grids as page structure.
+- Projects connect tasks, notes, and calendar events. Keep modules loosely coupled via shared data, not copy-paste layouts.
