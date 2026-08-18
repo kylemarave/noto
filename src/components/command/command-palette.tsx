@@ -6,6 +6,7 @@ import { Command } from "cmdk";
 import { Calendar, File, Folder, List, Search } from "lucide-react";
 import { searchAction } from "@/server/actions/search";
 import type { SearchResults } from "@/server/queries";
+import { useNavPending } from "@/components/layout/nav-pending";
 
 export function CommandPalette({
   open,
@@ -15,6 +16,7 @@ export function CommandPalette({
   onOpenChange: (open: boolean) => void;
 }) {
   const router = useRouter();
+  const { start } = useNavPending();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResults>({
     tasks: [],
@@ -51,6 +53,7 @@ export function CommandPalette({
   );
 
   function go(href: string) {
+    start(href);
     onOpenChange(false);
     router.push(href);
   }
@@ -66,20 +69,20 @@ export function CommandPalette({
         onClick={() => onOpenChange(false)}
       />
       <Command
-        className="absolute top-[18%] left-1/2 w-[min(560px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-[12px] border border-border bg-surface shadow-[0_16px_40px_rgba(0,0,0,0.4)]"
+        className="absolute top-[max(12%,env(safe-area-inset-top))] left-1/2 max-h-[min(32rem,calc(100dvh-2rem))] w-[min(560px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-[12px] border border-border bg-surface shadow-[0_16px_40px_rgba(0,0,0,0.4)]"
         shouldFilter={false}
       >
-        <div className="flex h-12 items-center gap-3 border-b border-border px-4">
+        <div className="flex h-14 items-center gap-3 border-b border-border px-4">
           <Search className="size-4 shrink-0 text-muted" strokeWidth={1.25} />
           <Command.Input
             autoFocus
             value={query}
             onValueChange={setQuery}
             placeholder="Search tasks, projects, notes, events"
-            className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-14 leading-none shadow-none outline-none placeholder:text-subtle"
+            className="h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-[16px] leading-none shadow-none outline-none placeholder:text-subtle lg:text-14"
           />
         </div>
-        <Command.List className="max-h-80 overflow-y-auto p-2 scrollbar-thin">
+        <Command.List className="max-h-[min(20rem,calc(100dvh-8rem))] overflow-y-auto overscroll-contain p-2 scrollbar-thin">
           {query.trim().length === 0 ? (
             <p className="px-2 py-6 text-center text-13 text-muted">
               Type to search across your workspace.
@@ -156,7 +159,7 @@ function Group({
           key={item.id}
           value={`${heading}-${item.id}`}
           onSelect={() => onSelect(item.href)}
-          className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-13 data-[selected=true]:bg-fill"
+          className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 py-2.5 text-13 data-[selected=true]:bg-fill"
         >
           {icon}
           <span className="truncate">{item.label}</span>

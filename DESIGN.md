@@ -26,9 +26,10 @@ Dark operational workspace. Charcoal layers, inverted white controls, no extra b
 
 ## Layout
 
-- Desktop: 248px sidebar | main
-- Collapsible sidebar to 72px
-- Mobile: header + content + bottom nav (5 destinations)
+- Desktop (lg+ / iPad landscape): 248px sidebar | main
+- Collapsible sidebar to 72px on desktop
+- Phone: header + content + bottom nav (5 destinations)
+- iPad portrait: hamburger + overlay drawer, no bottom nav; 44px tap targets; horizontal Kanban/calendar scroll
 - Active nav: white pill, dark text
 - Icons in chrome: 16px, stroke 1.25, simple geometry
 

@@ -23,14 +23,14 @@ export function ConfirmDialog({
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/50" />
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 w-[min(420px,calc(100vw-24px))] -translate-x-1/2 -translate-y-1/2 rounded-[12px] border border-border bg-surface p-5">
+        <AlertDialog.Content className="fixed top-1/2 left-1/2 z-50 w-[min(420px,calc(100vw-24px))] -translate-x-1/2 -translate-y-1/2 rounded-[12px] border border-border bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
           <AlertDialog.Title className="text-14 font-medium text-text">
             {title}
           </AlertDialog.Title>
           <AlertDialog.Description className="mt-2 text-13 text-muted">
             {description}
           </AlertDialog.Description>
-          <div className="mt-5 flex justify-end gap-2">
+          <div className="mt-5 flex flex-wrap justify-end gap-2">
             <AlertDialog.Cancel asChild>
               <Button variant="ghost">Cancel</Button>
             </AlertDialog.Cancel>

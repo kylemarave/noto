@@ -14,7 +14,7 @@ import { createNoteAction } from "@/server/actions/notes";
 import { createEventAction } from "@/server/actions/events";
 import { createProjectAction } from "@/server/actions/projects";
 import { createInboxItemAction } from "@/server/actions/inbox";
-import type { ProjectListItem } from "@/server/queries";
+import type { ProjectOption } from "@/server/queries";
 import { actionId, showActionError } from "@/lib/action-result";
 
 const TYPES = [
@@ -33,7 +33,7 @@ export function QuickAdd({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  projects: ProjectListItem[];
+  projects: ProjectOption[];
   defaultType?: string;
 }) {
   const router = useRouter();

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -44,17 +45,17 @@ export async function readSessionUserId() {
   }
 }
 
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async () => {
   const userId = await readSessionUserId();
   if (!userId) return null;
   return db.user.findUnique({
     where: { id: userId },
     select: { id: true, name: true, email: true },
   });
-}
+});
 
-export async function requireUser() {
+export const requireUser = cache(async () => {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   return user;
-}
+});

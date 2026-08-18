@@ -5,6 +5,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  TouchSensor,
   closestCorners,
   useDroppable,
   useSensor,
@@ -23,7 +24,7 @@ import { TASK_COLUMNS } from "@/lib/constants";
 import { formatDue } from "@/lib/dates";
 import { priorityLabel, taskStatusLabel } from "@/lib/labels";
 import { moveTaskAction } from "@/server/actions/tasks";
-import type { ProjectListItem, TaskWithRelations } from "@/server/queries";
+import type { ProjectOption, TaskWithRelations } from "@/server/queries";
 import { TaskDialog } from "./task-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ export function KanbanBoard({
   defaultProjectId,
 }: {
   tasks: TaskWithRelations[];
-  projects: ProjectListItem[];
+  projects: ProjectOption[];
   defaultProjectId?: string;
 }) {
   const [query, setQuery] = useState("");
@@ -60,7 +61,10 @@ export function KanbanBoard({
     });
   }, [items, query, priority]);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 12 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 220, tolerance: 8 } }),
+  );
 
   function onDragStart(event: DragStartEvent) {
     setActiveId(String(event.active.id));
@@ -111,12 +115,12 @@ export function KanbanBoard({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search tasks"
-          className="max-w-xs"
+          className="max-w-xs min-h-11"
         />
         <select
           value={priority}
           onChange={(event) => setPriority(event.target.value)}
-          className="h-9 rounded-[10px] border border-border bg-fill px-3 text-13"
+          className="h-11 min-w-36 rounded-[10px] border border-border bg-fill px-3 text-13"
         >
           <option value="ALL">All priorities</option>
           <option value="LOW">Low</option>
@@ -142,7 +146,7 @@ export function KanbanBoard({
           onDragStart={onDragStart}
           onDragEnd={(event) => void onDragEnd(event)}
         >
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+          <div className="-mx-4 flex gap-3 overflow-x-auto overscroll-x-contain px-4 pb-3 snap-x snap-mandatory scrollbar-thin md:mx-0 md:px-0 md:snap-none">
             {TASK_COLUMNS.map((column) => {
               const columnTasks = filtered
                 .filter((task) => task.status === column.id)
@@ -209,7 +213,7 @@ function KanbanColumn({
   return (
     <section
       ref={setNodeRef}
-      className="flex min-h-[420px] w-[260px] shrink-0 flex-col gap-2 rounded-[10px] border border-border bg-surface p-3"
+      className="flex min-h-[min(420px,70dvh)] w-[min(280px,78vw)] shrink-0 snap-start flex-col gap-2 rounded-[10px] border border-border bg-surface p-3 md:w-[260px]"
     >
       <div className="flex items-center justify-between px-1">
         <h2 className="text-13 font-medium">{label}</h2>
@@ -247,7 +251,7 @@ export function TaskCard({
       {...(overlay ? {} : sortable.listeners)}
       onClick={onClick}
       className={cn(
-        "flex w-full cursor-pointer flex-col gap-2 rounded-[10px] border border-border bg-bg p-3 text-left hover:border-line",
+        "flex w-full min-h-11 cursor-pointer flex-col gap-2 rounded-[10px] border border-border bg-bg p-3 text-left hover:border-line",
         overlay && "shadow-[0_12px_24px_rgba(0,0,0,0.35)]",
       )}
     >

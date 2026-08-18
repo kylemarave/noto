@@ -70,6 +70,9 @@ body {
   font-weight: 400;
   letter-spacing: var(--tracking);
   min-height: 100%;
+  min-height: 100dvh;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
 }
 
 body {
@@ -106,6 +109,7 @@ textarea::placeholder {
 .scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
 .text-12 {
@@ -141,6 +145,23 @@ textarea::placeholder {
   border: 0;
   box-shadow: none;
   outline: none;
+}
+
+@media (pointer: coarse), (any-pointer: coarse) {
+  button,
+  [role="button"],
+  a.touch-row,
+  summary {
+    min-height: 44px;
+  }
+
+  input,
+  textarea,
+  select,
+  [cmdk-input] {
+    font-size: 16px !important;
+    min-height: 44px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

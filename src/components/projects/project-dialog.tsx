@@ -82,13 +82,13 @@ export function ProjectDialog({
             />
           </Field>
           <Field label="Color">
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {PROJECT_COLORS.map((value) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => setColor(value)}
-                  className="size-7 cursor-pointer rounded-full border border-line"
+                  className="size-11 cursor-pointer rounded-full border border-line"
                   style={{
                     background: value,
                     outline: color === value ? "2px solid var(--text)" : undefined,
@@ -99,7 +99,7 @@ export function ProjectDialog({
               ))}
             </div>
           </Field>
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex flex-wrap justify-end gap-2 pt-1">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>

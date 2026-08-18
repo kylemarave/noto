@@ -49,9 +49,9 @@ export function InboxView({ items }: { items: InboxItemRecord[] }) {
         <Field label="Details">
           <Textarea value={body} onChange={(event) => setBody(event.target.value)} rows={3} />
         </Field>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Select
-            className="max-w-40"
+            className="min-w-40 flex-1 sm:max-w-40 sm:flex-none"
             value={kind}
             onValueChange={setKind}
             options={INBOX_KINDS.map((item) => ({ value: item.id, label: item.label }))}

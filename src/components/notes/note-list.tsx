@@ -64,7 +64,7 @@ export function NoteList({
             <Link
               key={note.id}
               href={`/notes/${note.id}`}
-              className="flex flex-col gap-2 rounded-[10px] border border-border bg-surface p-4 hover:border-line"
+              className="touch-row flex flex-col gap-2 rounded-[10px] border border-border bg-surface p-4 hover:border-line"
             >
               <div className="flex items-center justify-between gap-2">
                 <h2 className="truncate text-14 font-medium">{note.title}</h2>

@@ -5,22 +5,19 @@ import { format } from "date-fns";
 import { greeting } from "@/lib/utils";
 import { formatDue, formatWhen } from "@/lib/dates";
 import { taskStatusLabel } from "@/lib/labels";
-import type { DashboardData, ProjectListItem, WorkspaceUser } from "@/server/queries";
+import type { DashboardData, WorkspaceUser } from "@/server/queries";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty";
-import { useState } from "react";
-import { QuickAdd } from "@/components/quick-add/quick-add";
+import { useQuickAdd } from "@/components/quick-add/quick-add-context";
 
 export function DashboardView({
   user,
   data,
-  projects,
 }: {
   user: WorkspaceUser;
   data: DashboardData;
-  projects: ProjectListItem[];
 }) {
-  const [quickOpen, setQuickOpen] = useState(false);
+  const openQuickAdd = useQuickAdd();
   const completion =
     data.stats.total === 0 ? 0 : Math.round((data.stats.done / data.stats.total) * 100);
 
@@ -33,7 +30,7 @@ export function DashboardView({
             {data.todayTasks.length} due today · {data.inboxCount} in inbox · {completion}% complete
           </p>
         </div>
-        <Button onClick={() => setQuickOpen(true)}>+ New</Button>
+        <Button onClick={openQuickAdd}>+ New</Button>
       </section>
 
       <section className="flex flex-col gap-3">
@@ -51,7 +48,7 @@ export function DashboardView({
         ) : (
           <ul className="divide-y divide-border rounded-[10px] border border-border bg-surface">
             {data.todayTasks.map((task) => (
-              <li key={task.id} className="flex items-center justify-between gap-3 px-4 py-3">
+              <li key={task.id} className="flex min-h-11 items-center justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <p className="truncate text-14">{task.title}</p>
                   <p className="text-12 text-subtle">
@@ -79,7 +76,7 @@ export function DashboardView({
               <Link
                 key={String(label)}
                 href="/tasks"
-                className="flex flex-col gap-1 bg-surface px-4 py-4 hover:bg-fill"
+                className="touch-row flex min-h-16 flex-col gap-1 bg-surface px-4 py-4 hover:bg-fill"
               >
                 <span className="text-12 text-muted">{label}</span>
                 <span className="text-24 tabular">{value}</span>
@@ -98,7 +95,7 @@ export function DashboardView({
                   <Link
                     key={event.id}
                     href="/calendar"
-                    className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
+                    className="flex min-h-11 items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
                   >
                     <span className="truncate text-14">{event.title}</span>
                     <span className="text-12 text-subtle">{formatWhen(event.startAt)}</span>
@@ -108,7 +105,7 @@ export function DashboardView({
                   <Link
                     key={task.id}
                     href="/tasks"
-                    className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
+                    className="flex min-h-11 items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-fill"
                   >
                     <span className="truncate text-14">{task.title}</span>
                     <span className="text-12 text-subtle">{formatDue(task.dueDate)}</span>
@@ -146,7 +143,7 @@ export function DashboardView({
                 <Link
                   key={project.id}
                   href={`/projects/${project.id}`}
-                  className="flex flex-col gap-3 rounded-[10px] border border-border bg-surface p-4 hover:border-line"
+                  className="touch-row flex flex-col gap-3 rounded-[10px] border border-border bg-surface p-4 hover:border-line"
                 >
                   <div className="flex items-center gap-2">
                     <span
@@ -191,7 +188,7 @@ export function DashboardView({
               <Link
                 key={note.id}
                 href={`/notes/${note.id}`}
-                className="flex flex-col gap-2 rounded-[10px] border border-border bg-surface p-4 hover:border-line"
+                className="touch-row flex flex-col gap-2 rounded-[10px] border border-border bg-surface p-4 hover:border-line"
               >
                 <p className="text-14 font-medium">{note.title}</p>
                 <p className="line-clamp-3 text-13 text-muted">
@@ -206,8 +203,6 @@ export function DashboardView({
           </div>
         )}
       </section>
-
-      <QuickAdd open={quickOpen} onOpenChange={setQuickOpen} projects={projects} />
     </div>
   );
 }

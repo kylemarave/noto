@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { requireUser } from "@/lib/auth";
-import { getFavorites, getInbox, getProjects } from "@/server/queries";
+import { getFavorites, getInboxCount, getProjectOptions } from "@/server/queries";
 
 export default async function WorkspaceLayout({
   children,
@@ -8,17 +8,17 @@ export default async function WorkspaceLayout({
   children: React.ReactNode;
 }) {
   const user = await requireUser();
-  const [favorites, inbox, projects] = await Promise.all([
+  const [favorites, inboxCount, projects] = await Promise.all([
     getFavorites(user.id),
-    getInbox(user.id),
-    getProjects(user.id),
+    getInboxCount(user.id),
+    getProjectOptions(user.id),
   ]);
 
   return (
     <AppShell
       user={user}
       favorites={favorites}
-      inboxCount={inbox.length}
+      inboxCount={inboxCount}
       projects={projects}
     >
       {children}

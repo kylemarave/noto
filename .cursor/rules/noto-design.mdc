@@ -12,4 +12,4 @@ alwaysApply: true
 - Icons: 16px line icons, stroke 1.25. Simple geometry only — no notebook-and-pen composites. Favorites use a 6px color dot.
 - Active nav: white pill, dark text. Primary buttons: white fill, dark text.
 - No extra brand colors, heavy gradients, glassmorphism, or giant identical metric-card grids as page structure.
-- Projects connect tasks, notes, and calendar events. Keep modules loosely coupled via shared data, not copy-paste layouts.
+- Phone: bottom nav. iPad portrait: overlay sidebar, 44px tap targets, no bottom nav. Desktop/iPad landscape: docked sidebar.

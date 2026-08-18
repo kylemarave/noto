@@ -1,4 +1,5 @@
-import type { InboxKind, Prisma } from "@prisma/client";
+import { cache } from "react";
+import type { InboxKind, Prisma, TaskStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { startOfDay, endOfDay, addDays } from "date-fns";
 
@@ -19,7 +20,7 @@ const noteInclude = {
   tags: { include: { tag: true } },
 } satisfies Prisma.NoteInclude;
 
-export async function getProjects(userId: string) {
+export const getProjects = cache(async (userId: string) => {
   return db.project.findMany({
     where: { userId, status: { not: "ARCHIVED" } },
     orderBy: { updatedAt: "desc" },
@@ -29,9 +30,17 @@ export async function getProjects(userId: string) {
       favorite: true,
     },
   });
-}
+});
 
-export async function getProject(userId: string, id: string) {
+export const getProjectOptions = cache(async (userId: string) => {
+  return db.project.findMany({
+    where: { userId, status: { not: "ARCHIVED" } },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+});
+
+export const getProject = cache(async (userId: string, id: string) => {
   return db.project.findFirst({
     where: { id, userId },
     include: {
@@ -48,32 +57,40 @@ export async function getProject(userId: string, id: string) {
       _count: { select: { tasks: true, notes: true, events: true } },
     },
   });
-}
+});
 
-export async function getTasks(userId: string, projectId?: string) {
+export const getTasks = cache(async (userId: string, projectId?: string) => {
   return db.task.findMany({
     where: { userId, ...(projectId ? { projectId } : {}) },
     include: taskInclude,
     orderBy: [{ position: "asc" }, { createdAt: "asc" }],
   });
-}
+});
 
-export async function getNotes(userId: string, options?: { archived?: boolean }) {
+export const getCalendarTasks = cache(async (userId: string) => {
+  return db.task.findMany({
+    where: { userId },
+    select: { id: true, title: true, dueDate: true },
+    orderBy: { dueDate: "asc" },
+  });
+});
+
+export const getNotes = cache(async (userId: string, options?: { archived?: boolean }) => {
   return db.note.findMany({
     where: { userId, archived: options?.archived ?? false },
     include: noteInclude,
     orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
   });
-}
+});
 
-export async function getNote(userId: string, id: string) {
+export const getNote = cache(async (userId: string, id: string) => {
   return db.note.findFirst({
     where: { id, userId },
     include: noteInclude,
   });
-}
+});
 
-export async function getEvents(userId: string, range?: { from: Date; to: Date }) {
+export const getEvents = cache(async (userId: string, range?: { from: Date; to: Date }) => {
   return db.calendarEvent.findMany({
     where: {
       userId,
@@ -87,22 +104,26 @@ export async function getEvents(userId: string, range?: { from: Date; to: Date }
     },
     orderBy: { startAt: "asc" },
   });
-}
+});
 
-export async function getInbox(userId: string) {
+export const getInbox = cache(async (userId: string) => {
   return db.inboxItem.findMany({
     where: { userId, processed: false },
     orderBy: { createdAt: "desc" },
   });
-}
+});
 
-export async function getFavorites(userId: string) {
+export const getInboxCount = cache(async (userId: string) => {
+  return db.inboxItem.count({ where: { userId, processed: false } });
+});
+
+export const getFavorites = cache(async (userId: string) => {
   return db.favorite.findMany({
     where: { userId },
-    include: { project: true },
+    include: { project: { select: { id: true, name: true, color: true } } },
     orderBy: { project: { name: "asc" } },
   });
-}
+});
 
 export async function getTags(userId: string) {
   return db.tag.findMany({
@@ -111,13 +132,13 @@ export async function getTags(userId: string) {
   });
 }
 
-export async function getDashboard(userId: string) {
+export const getDashboard = cache(async (userId: string) => {
   const now = new Date();
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
   const upcomingEnd = endOfDay(addDays(now, 7));
 
-  const [todayTasks, upcomingTasks, events, notes, projects, allTasks, inboxCount] =
+  const [todayTasks, upcomingTasks, events, notes, projects, statusCounts, inboxCount] =
     await Promise.all([
       db.task.findMany({
         where: {
@@ -150,20 +171,36 @@ export async function getDashboard(userId: string) {
         orderBy: { updatedAt: "desc" },
         take: 4,
       }),
-      getProjects(userId),
-      db.task.findMany({
-        where: { userId },
-        select: { status: true },
+      db.project.findMany({
+        where: { userId, status: { not: "ARCHIVED" } },
+        orderBy: { updatedAt: "desc" },
+        take: 6,
+        select: {
+          id: true,
+          name: true,
+          color: true,
+          description: true,
+          _count: { select: { notes: true, tasks: true } },
+          tasks: { select: { status: true } },
+        },
       }),
-      db.inboxItem.count({ where: { userId, processed: false } }),
+      db.task.groupBy({
+        by: ["status"],
+        where: { userId },
+        _count: { _all: true },
+      }),
+      getInboxCount(userId),
     ]);
 
+  const countFor = (status: TaskStatus) =>
+    statusCounts.find((row) => row.status === status)?._count._all ?? 0;
+
   const stats = {
-    todo: allTasks.filter((task) => task.status === "TODO" || task.status === "BACKLOG").length,
-    inProgress: allTasks.filter((task) => task.status === "IN_PROGRESS").length,
-    review: allTasks.filter((task) => task.status === "REVIEW").length,
-    done: allTasks.filter((task) => task.status === "DONE").length,
-    total: allTasks.length,
+    todo: countFor("TODO") + countFor("BACKLOG"),
+    inProgress: countFor("IN_PROGRESS"),
+    review: countFor("REVIEW"),
+    done: countFor("DONE"),
+    total: statusCounts.reduce((sum, row) => sum + row._count._all, 0),
   };
 
   return {
@@ -171,11 +208,11 @@ export async function getDashboard(userId: string) {
     upcomingTasks,
     events,
     notes,
-    projects: projects.slice(0, 6),
+    projects,
     stats,
     inboxCount,
   };
-}
+});
 
 export async function searchWorkspace(userId: string, query: string) {
   const q = query.trim();
@@ -222,6 +259,8 @@ export async function searchWorkspace(userId: string, query: string) {
   return { tasks, projects, notes, events };
 }
 
+export type ProjectOption = Awaited<ReturnType<typeof getProjectOptions>>[number];
+export type CalendarTask = Awaited<ReturnType<typeof getCalendarTasks>>[number];
 export type TaskWithRelations = Prisma.TaskGetPayload<{ include: typeof taskInclude }>;
 export type NoteWithRelations = Prisma.NoteGetPayload<{ include: typeof noteInclude }>;
 export type ProjectListItem = Awaited<ReturnType<typeof getProjects>>[number];

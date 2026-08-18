@@ -12,7 +12,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { TASK_COLUMNS, TASK_PRIORITIES } from "@/lib/constants";
 import { toDateInput } from "@/lib/dates";
 import { createTaskAction, deleteTaskAction, updateTaskAction } from "@/server/actions/tasks";
-import type { ProjectListItem, TaskWithRelations } from "@/server/queries";
+import type { ProjectOption, TaskWithRelations } from "@/server/queries";
 
 export function TaskDialog({
   open,
@@ -25,7 +25,7 @@ export function TaskDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task?: TaskWithRelations | null;
-  projects: ProjectListItem[];
+  projects: ProjectOption[];
   defaultStatus?: string;
   defaultProjectId?: string;
 }) {
@@ -95,7 +95,7 @@ export function TaskDialog({
           title={task ? "Edit task" : "New task"}
           description="Keep it specific enough to start."
         >
-          <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto pr-1 scrollbar-thin">
+          <div className="flex max-h-[min(70dvh,32rem)] flex-col gap-3 overflow-y-auto overscroll-contain pr-1 scrollbar-thin">
             <Field label="Title">
               <Input value={title} onChange={(event) => setTitle(event.target.value)} />
             </Field>
@@ -105,7 +105,7 @@ export function TaskDialog({
                 onChange={(event) => setDescription(event.target.value)}
               />
             </Field>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field label="Status">
                 <Select
                   value={status}
@@ -127,7 +127,7 @@ export function TaskDialog({
                 />
               </Field>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field label="Due date">
                 <Input
                   type="date"

@@ -17,7 +17,7 @@ export function ProjectList({ projects }: { projects: ProjectListItem[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-13 text-muted">Projects connect tasks, notes, and dates.</p>
         <Button onClick={() => setOpen(true)}>New project</Button>
       </div>
@@ -48,7 +48,7 @@ export function ProjectList({ projects }: { projects: ProjectListItem[] }) {
                   </Link>
                   <button
                     type="button"
-                    className="cursor-pointer text-muted hover:text-text"
+                    className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-fill hover:text-text"
                     aria-label="Favorite"
                     onClick={async () => {
                       const result = await toggleFavoriteAction(project.id);

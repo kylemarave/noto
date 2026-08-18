@@ -37,7 +37,7 @@ export function DialogContent({
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50" />
       <DialogPrimitive.Content
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 w-[min(520px,calc(100vw-24px))] -translate-x-1/2 -translate-y-1/2 rounded-[12px] border border-border bg-surface p-5 shadow-[0_16px_40px_rgba(0,0,0,0.35)]",
+          "fixed top-1/2 left-1/2 z-50 max-h-[min(90dvh,calc(100dvh-2rem))] w-[min(520px,calc(100vw-24px))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[12px] border border-border bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[0_16px_40px_rgba(0,0,0,0.35)]",
           className,
         )}
       >
@@ -56,7 +56,7 @@ export function DialogContent({
               </DialogPrimitive.Description>
             )}
           </div>
-          <DialogPrimitive.Close className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-fill hover:text-text">
+          <DialogPrimitive.Close className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-fill hover:text-text">
             <X className="size-4" />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>

@@ -28,7 +28,7 @@ import {
   deleteEventAction,
   updateEventAction,
 } from "@/server/actions/events";
-import type { EventRecord, ProjectListItem, TaskWithRelations } from "@/server/queries";
+import type { CalendarTask, EventRecord, ProjectOption } from "@/server/queries";
 import { cn } from "@/lib/utils";
 
 type View = "month" | "week" | "day";
@@ -47,8 +47,8 @@ export function CalendarView({
   projects,
 }: {
   events: EventRecord[];
-  tasks: TaskWithRelations[];
-  projects: ProjectListItem[];
+  tasks: CalendarTask[];
+  projects: ProjectOption[];
 }) {
   const [view, setView] = useState<View>("month");
   const [cursor, setCursor] = useState(new Date());
@@ -104,7 +104,7 @@ export function CalendarView({
               type="button"
               onClick={() => setView(item)}
               className={cn(
-                "h-8 cursor-pointer rounded-md px-3 text-13 capitalize",
+                "h-11 min-w-11 cursor-pointer rounded-md px-3 text-13 capitalize",
                 view === item ? "inverse" : "text-muted hover:text-text",
               )}
             >
@@ -129,12 +129,13 @@ export function CalendarView({
         </Button>
       </div>
 
-      <div
-        className={cn(
-          "grid gap-px overflow-hidden rounded-[10px] border border-border bg-border",
-          view === "month" ? "grid-cols-7" : view === "week" ? "grid-cols-7" : "grid-cols-1",
-        )}
-      >
+      <div className="overflow-x-auto overscroll-x-contain rounded-[10px] scrollbar-thin">
+        <div
+          className={cn(
+            "grid min-w-[36rem] gap-px overflow-hidden rounded-[10px] border border-border bg-border md:min-w-0",
+            view === "month" ? "grid-cols-7" : view === "week" ? "grid-cols-7" : "grid-cols-1",
+          )}
+        >
         {view !== "day"
           ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
               <div key={day} className="bg-surface px-3 py-2 text-12 text-subtle">
@@ -154,7 +155,7 @@ export function CalendarView({
                 setOpen(true);
               }}
               className={cn(
-                "flex min-h-24 cursor-pointer flex-col gap-1 bg-surface p-2 text-left hover:bg-fill",
+                "flex min-h-28 cursor-pointer flex-col gap-1 bg-surface p-2 text-left hover:bg-fill md:min-h-24",
                 view === "month" && !isSameMonth(day, cursor) && "opacity-40",
                 isSameDay(day, new Date()) && "bg-fill",
               )}
@@ -163,7 +164,7 @@ export function CalendarView({
               {dayItems.slice(0, view === "month" ? 3 : 8).map((item) => (
                 <span
                   key={item.id}
-                  className="truncate rounded-md px-1.5 py-0.5 text-12"
+                  className="min-h-8 truncate rounded-md px-1.5 py-1 text-12"
                   style={{
                     background: item.kind === "task" ? "transparent" : "var(--fill)",
                     border: item.kind === "task" ? "1px solid var(--border-strong)" : undefined,
@@ -183,6 +184,7 @@ export function CalendarView({
             </button>
           );
         })}
+        </div>
       </div>
 
       <EventDialog
@@ -224,8 +226,8 @@ function EventDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   event: EventRecord | null;
-  projects: ProjectListItem[];
-  tasks: TaskWithRelations[];
+  projects: ProjectOption[];
+  tasks: CalendarTask[];
   defaultStart: Date;
   onDelete: () => void;
 }) {
@@ -284,7 +286,7 @@ function EventDialog({
               onChange={(event) => setDescription(event.target.value)}
             />
           </Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field label="Starts">
               <Input
                 type="datetime-local"

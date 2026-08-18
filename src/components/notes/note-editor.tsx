@@ -15,14 +15,14 @@ import {
   togglePinNoteAction,
   updateNoteAction,
 } from "@/server/actions/notes";
-import type { NoteWithRelations, ProjectListItem } from "@/server/queries";
+import type { NoteWithRelations, ProjectOption } from "@/server/queries";
 
 export function NoteEditor({
   note,
   projects,
 }: {
   note: NoteWithRelations;
-  projects: ProjectListItem[];
+  projects: ProjectOption[];
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(note.title);
@@ -88,13 +88,13 @@ export function NoteEditor({
       <input
         value={title}
         onChange={(event) => setTitle(event.target.value)}
-        className="bg-transparent text-24 outline-none"
+        className="w-full min-h-11 bg-transparent text-24 outline-none"
         placeholder="Untitled note"
       />
       <Textarea
         value={content}
         onChange={(event) => setContent(event.target.value)}
-        className="min-h-[420px] border-0 bg-transparent px-0 py-0"
+        className="min-h-[min(420px,60dvh)] border-0 bg-transparent px-0 py-0"
         placeholder="Write freely. A richer editor can replace this later."
       />
       <div className="grid gap-3 border-t border-border pt-4 md:grid-cols-2">

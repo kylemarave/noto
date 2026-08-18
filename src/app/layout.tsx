@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -9,9 +9,24 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#141414",
+};
+
 export const metadata: Metadata = {
   title: "Noto",
   description: "Tasks, projects, notes, and calendar in one workspace.",
+  appleWebApp: {
+    capable: true,
+    title: "Noto",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -35,6 +50,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Toaster
           theme="dark"
           position="bottom-right"
+          offset={{ bottom: "max(1.25rem, env(safe-area-inset-bottom))", right: "1rem" }}
+          mobileOffset={{ bottom: "max(5.5rem, env(safe-area-inset-bottom))", right: "1rem" }}
           toastOptions={{
             className: "!bg-surface !text-text !border-border !text-[13px]",
           }}

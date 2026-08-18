@@ -8,44 +8,55 @@ import { cn, initials } from "@/lib/utils";
 import { logoutAction } from "@/server/actions/auth";
 import type { WorkspaceUser } from "@/server/queries";
 import { NAV_ITEMS, NavIcon } from "./nav-icons";
+import { useNavPending } from "./nav-pending";
 
 export function Sidebar({
   user,
   favorites,
   collapsed,
+  overlayOpen,
   onToggle,
+  onCloseOverlay,
   onQuickAdd,
   inboxCount,
 }: {
   user: WorkspaceUser;
   favorites: { id: string; project: { id: string; name: string; color: string } }[];
   collapsed: boolean;
+  overlayOpen: boolean;
   onToggle: () => void;
+  onCloseOverlay: () => void;
   onQuickAdd: () => void;
   inboxCount: number;
 }) {
-  const pathname = usePathname();
-
   return (
     <aside
       className={cn(
-        "hidden h-dvh shrink-0 flex-col border-r border-border bg-surface md:flex",
-        collapsed ? "w-[72px]" : "w-[248px]",
+        "fixed inset-y-0 left-0 z-50 flex h-dvh w-[min(280px,86vw)] shrink-0 flex-col border-r border-border bg-surface pt-[env(safe-area-inset-top)] transition-transform duration-200 lg:static lg:z-auto lg:w-auto lg:translate-x-0 lg:transition-none",
+        overlayOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+        collapsed ? "lg:w-[72px]" : "lg:w-[248px]",
       )}
     >
-      <div className={cn("flex h-14 items-center gap-2 px-3", collapsed && "justify-center")}>
+      <div className={cn("flex h-14 items-center gap-2 px-3", collapsed && "lg:justify-center")}>
         <Mark />
-        {!collapsed ? (
-          <span className="text-14 font-medium tracking-[-0.15px]">Noto</span>
+        {!collapsed || overlayOpen ? (
+          <span className="text-14 font-medium tracking-[-0.15px] lg:inline">
+            {collapsed && !overlayOpen ? null : "Noto"}
+          </span>
         ) : null}
         <button
           type="button"
           onClick={onToggle}
-          className={cn(
-            "ml-auto inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-fill hover:text-text",
-            collapsed && "ml-0",
-          )}
+          className="ml-auto hidden size-11 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-fill hover:text-text lg:inline-flex"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <PanelLeft className="size-4" strokeWidth={1.25} />
+        </button>
+        <button
+          type="button"
+          onClick={onCloseOverlay}
+          className="ml-auto inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-fill hover:text-text lg:hidden"
+          aria-label="Close menu"
         >
           <PanelLeft className="size-4" strokeWidth={1.25} />
         </button>
@@ -56,43 +67,44 @@ export function Sidebar({
           type="button"
           onClick={onQuickAdd}
           className={cn(
-            "inverse flex h-9 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] text-13 font-medium hover:opacity-90",
-            collapsed && "px-0",
+            "inverse flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] text-13 font-medium hover:opacity-90",
+            collapsed && "lg:px-0",
           )}
         >
           <Plus className="size-3.5" strokeWidth={1.5} />
-          {!collapsed ? "New" : <span className="sr-only">New</span>}
+          {collapsed ? (
+            <span className="lg:sr-only">New</span>
+          ) : (
+            "New"
+          )}
         </button>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 pb-4 scrollbar-thin">
+      <nav className="flex flex-1 flex-col gap-6 overflow-y-auto overscroll-contain px-3 pb-4 scrollbar-thin">
         <NavGroup title={collapsed ? undefined : "Workspace"}>
-          {NAV_ITEMS.map((item) => {
-            const active =
-              pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
+          {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.href}
                 href={item.href}
-                active={active}
                 collapsed={collapsed}
+                onNavigate={onCloseOverlay}
                 icon={<NavIcon icon={item.icon} />}
                 badge={item.href === "/inbox" && inboxCount > 0 ? inboxCount : undefined}
               >
                 {item.label}
               </NavLink>
-            );
-          })}
+          ))}
         </NavGroup>
 
-        {!collapsed && favorites.length > 0 ? (
+        {(!collapsed || overlayOpen) && favorites.length > 0 ? (
           <NavGroup title="Favorites">
             {favorites.map((favorite) => (
               <NavLink
                 key={favorite.id}
                 href={`/projects/${favorite.project.id}`}
-                active={pathname === `/projects/${favorite.project.id}`}
                 collapsed={false}
+                exact
+                onNavigate={onCloseOverlay}
                 icon={
                   <span
                     className="size-1.5 shrink-0 rounded-full"
@@ -109,8 +121,8 @@ export function Sidebar({
         <div className="mt-auto flex flex-col gap-1">
           <NavLink
             href="/settings"
-            active={pathname === "/settings"}
             collapsed={collapsed}
+            onNavigate={onCloseOverlay}
             icon={<NavIcon icon={Settings2} />}
           >
             Settings
@@ -118,18 +130,18 @@ export function Sidebar({
         </div>
       </nav>
 
-      <div className="border-t border-border p-3">
-        <div className={cn("flex items-center gap-2", collapsed && "justify-center")}>
-          <div className="flex size-8 items-center justify-center rounded-full bg-fill text-12 font-medium">
+      <div className="border-t border-border p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className={cn("flex items-center gap-2", collapsed && "lg:justify-center")}>
+          <div className="flex size-10 items-center justify-center rounded-full bg-fill text-12 font-medium">
             {initials(user.name)}
           </div>
-          {!collapsed ? (
-            <div className="min-w-0 flex-1">
+          {!collapsed || overlayOpen ? (
+            <div className="min-w-0 flex-1 lg:block">
               <p className="truncate text-12 font-medium">{user.name}</p>
               <form action={logoutAction}>
                 <button
                   type="submit"
-                  className="cursor-pointer text-12 text-muted hover:text-text"
+                  className="min-h-11 cursor-pointer text-left text-12 text-muted hover:text-text"
                 >
                   Sign out
                 </button>
@@ -155,27 +167,40 @@ function NavGroup({ title, children }: { title?: string; children: ReactNode }) 
 
 function NavLink({
   href,
-  active,
   collapsed,
   icon,
   children,
   badge,
+  exact,
+  onNavigate,
 }: {
   href: string;
-  active: boolean;
   collapsed: boolean;
   icon: ReactNode;
   children: ReactNode;
   badge?: number;
+  exact?: boolean;
+  onNavigate: () => void;
 }) {
+  const pathname = usePathname();
+  const { pendingHref, start } = useNavPending();
+  const match = (value: string) =>
+    exact ? value === href : value === href || value.startsWith(`${href}/`);
+  const active = pendingHref ? match(pendingHref) : match(pathname);
+
   return (
     <Link
       href={href}
+      prefetch
       title={collapsed ? String(children) : undefined}
+      onClick={() => {
+        onNavigate();
+        if (href !== pathname) start(href);
+      }}
       className={cn(
-        "flex h-9 items-center gap-2.5 rounded-[8px] px-2.5 text-12 font-medium transition-colors",
+        "touch-row flex min-h-11 items-center gap-2.5 rounded-[8px] px-2.5 text-12 font-medium transition-colors",
         active ? "inverse" : "text-muted hover:bg-fill hover:text-text",
-        collapsed && "justify-center px-0",
+        collapsed && "lg:justify-center lg:px-0",
       )}
     >
       <span
@@ -186,12 +211,13 @@ function NavLink({
       >
         {icon}
       </span>
-      {!collapsed ? <span className="truncate">{children}</span> : null}
-      {!collapsed && badge ? (
+      <span className={cn("truncate", collapsed && "lg:hidden")}>{children}</span>
+      {badge ? (
         <span
           className={cn(
-            "ml-auto flex size-4 items-center justify-center rounded-full text-12",
+            "ml-auto flex size-5 items-center justify-center rounded-full text-12",
             active ? "bg-black/10" : "bg-fill",
+            collapsed && "lg:hidden",
           )}
         >
           {badge}
@@ -230,18 +256,25 @@ export function Mark() {
 
 export function MobileBottomNav({ inboxCount }: { inboxCount: number }) {
   const pathname = usePathname();
+  const { pendingHref, start } = useNavPending();
   const items = NAV_ITEMS.slice(0, 5);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex h-14 items-center justify-around border-t border-border bg-surface px-2 pb-[env(safe-area-inset-bottom)] md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex h-[calc(3.5rem+env(safe-area-inset-bottom))] items-center justify-around border-t border-border bg-surface px-2 pb-[env(safe-area-inset-bottom)] md:hidden">
       {items.map((item) => {
-        const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const match = (value: string) =>
+          value === item.href || value.startsWith(`${item.href}/`);
+        const active = pendingHref ? match(pendingHref) : match(pathname);
         return (
           <Link
             key={item.href}
             href={item.href}
+            prefetch
+            onClick={() => {
+              if (item.href !== pathname) start(item.href);
+            }}
             className={cn(
-              "relative flex size-10 items-center justify-center rounded-full",
+              "relative flex size-11 items-center justify-center rounded-[10px]",
               active ? "inverse" : "text-muted",
             )}
             aria-label={item.label}

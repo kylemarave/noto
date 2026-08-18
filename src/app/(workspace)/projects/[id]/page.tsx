@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Star } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { getProject, getProjects } from "@/server/queries";
+import { getProject, getProjectOptions } from "@/server/queries";
 import { projectStatusLabel } from "@/lib/labels";
 import { KanbanBoard } from "@/components/tasks/kanban-board";
 import { NoteList } from "@/components/notes/note-list";
@@ -18,7 +18,7 @@ export default async function ProjectDetailPage({
   const { id } = await params;
   const [project, projects] = await Promise.all([
     getProject(user.id, id),
-    getProjects(user.id),
+    getProjectOptions(user.id),
   ]);
   if (!project) notFound();
 
@@ -28,7 +28,7 @@ export default async function ProjectDetailPage({
     <div className="flex flex-col gap-8">
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-2">
-          <Link href="/projects" className="text-12 text-muted hover:text-text">
+          <Link href="/projects" className="inline-flex min-h-11 items-center text-12 text-muted hover:text-text">
             Projects
           </Link>
           <div className="flex items-center gap-2">
@@ -68,7 +68,11 @@ export default async function ProjectDetailPage({
         <h3 className="text-14 font-medium">Calendar</h3>
         <CalendarView
           events={project.events}
-          tasks={project.tasks}
+          tasks={project.tasks.map((task) => ({
+            id: task.id,
+            title: task.title,
+            dueDate: task.dueDate,
+          }))}
           projects={projects}
         />
       </section>

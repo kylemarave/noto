@@ -13,7 +13,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const action = mode === "login" ? loginAction : registerAction;
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-6 py-8 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))]">
       <div className="mb-8 flex items-center gap-2">
         <Mark />
         <span className="text-14 font-medium">Noto</span>
@@ -52,7 +52,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           />
         </Field>
         {error ? <p className="text-13 text-danger">{error}</p> : null}
-        <Button type="submit" className="mt-2">
+        <Button type="submit" className="mt-2 min-h-11">
           {mode === "login" ? "Sign in" : "Create account"}
         </Button>
       </form>
@@ -66,14 +66,14 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         {mode === "login" ? (
           <>
             New here?{" "}
-            <Link href="/register" className="text-text">
+            <Link href="/register" className="inline-flex min-h-11 items-center text-text">
               Create an account
             </Link>
           </>
         ) : (
           <>
             Already have a workspace?{" "}
-            <Link href="/login" className="text-text">
+            <Link href="/login" className="inline-flex min-h-11 items-center text-text">
               Sign in
             </Link>
           </>
