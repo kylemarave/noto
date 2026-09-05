@@ -1,9 +1,15 @@
-import { NoteList } from "@/components/notes/note-list";
+import { NotesWorkspace } from "@/components/notes/notes-workspace";
 import { requireUser } from "@/lib/auth";
-import { getNotes } from "@/server/queries";
+import { getNotes, getProjectOptions } from "@/server/queries";
 
 export default async function NotesPage() {
   const user = await requireUser();
-  const notes = await getNotes(user.id);
-  return <NoteList notes={notes} />;
+  const [notes, projects] = await Promise.all([
+    getNotes(user.id, { archived: "all" }),
+    getProjectOptions(user.id),
+  ]);
+  const selected = notes.find((note) => !note.archived) ?? notes[0] ?? null;
+  return (
+    <NotesWorkspace notes={notes} projects={projects} selected={selected} />
+  );
 }

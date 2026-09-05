@@ -57,10 +57,11 @@ export function NoteEditor({
   }
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-5">
+      <div className="-ml-2.5 flex flex-wrap items-center gap-1">
         <Button
           variant="ghost"
+          size="sm"
           onClick={async () => {
             await togglePinNoteAction(note.id);
             toast.success(note.pinned ? "Note unpinned" : "Note pinned");
@@ -70,6 +71,7 @@ export function NoteEditor({
         </Button>
         <Button
           variant="ghost"
+          size="sm"
           onClick={async () => {
             await toggleArchiveNoteAction(note.id);
             toast.success(note.archived ? "Note restored" : "Note archived");
@@ -78,28 +80,32 @@ export function NoteEditor({
         >
           {note.archived ? "Restore" : "Archive"}
         </Button>
-        <Button variant="ghost" onClick={() => setConfirmOpen(true)}>
+        <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(true)}>
           Delete
         </Button>
-        <Button className="ml-auto" onClick={() => void save()} disabled={saving}>
+        <Button size="sm" className="ml-auto" onClick={() => void save()} disabled={saving}>
           {saving ? "Saving…" : "Save"}
         </Button>
       </div>
       <input
         value={title}
         onChange={(event) => setTitle(event.target.value)}
-        className="w-full min-h-11 bg-transparent text-24 outline-none"
+        className="min-h-11 w-full bg-transparent text-24 outline-none placeholder:text-subtle"
         placeholder="Untitled note"
+        aria-label="Note title"
       />
       <Textarea
         value={content}
         onChange={(event) => setContent(event.target.value)}
-        className="min-h-[min(420px,60dvh)] border-0 bg-transparent px-0 py-0"
-        placeholder="Write freely. A richer editor can replace this later."
+        className="min-h-48 resize-y bg-transparent px-0 py-0 text-14 leading-relaxed hover:bg-transparent"
+        placeholder="Start writing."
+        aria-label="Note body"
+        rows={10}
       />
-      <div className="grid gap-3 border-t border-border pt-4 md:grid-cols-2">
+      <div className="flex flex-wrap items-end gap-3 border-t border-border pt-4">
         <Field label="Project">
           <Select
+            className="w-48"
             value={projectId || "none"}
             onValueChange={(value) => setProjectId(value === "none" ? "" : value)}
             options={[
@@ -110,6 +116,7 @@ export function NoteEditor({
         </Field>
         <Field label="Tags">
           <Input
+            className="w-48"
             value={tags}
             onChange={(event) => setTags(event.target.value)}
             placeholder="ideas, research"

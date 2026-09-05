@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { NoteEditor } from "@/components/notes/note-editor";
+import { NotesWorkspace } from "@/components/notes/notes-workspace";
 import { requireUser } from "@/lib/auth";
-import { getNote, getProjectOptions } from "@/server/queries";
+import { getNote, getNotes, getProjectOptions } from "@/server/queries";
 
 export default async function NoteDetailPage({
   params,
@@ -10,10 +10,18 @@ export default async function NoteDetailPage({
 }) {
   const user = await requireUser();
   const { id } = await params;
-  const [note, projects] = await Promise.all([
+  const [note, notes, projects] = await Promise.all([
     getNote(user.id, id),
+    getNotes(user.id, { archived: "all" }),
     getProjectOptions(user.id),
   ]);
   if (!note) notFound();
-  return <NoteEditor note={note} projects={projects} />;
+  return (
+    <NotesWorkspace
+      notes={notes}
+      projects={projects}
+      selected={note}
+      variant="detail"
+    />
+  );
 }

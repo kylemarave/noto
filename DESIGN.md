@@ -8,14 +8,20 @@ Dark operational workspace. Charcoal layers, inverted white controls, no extra b
 
 ## Color
 
+Monochrome. Greyscale is the entire palette; red is the only hue and it is
+reserved for destructive actions and overdue dates.
+
 - Page: `#141414`
-- Surface (sidebar, cards, dialogs): `#181818`
+- Surface (sidebar, dialogs, calendar cells): `#181818`
 - Text: `#FFFFFF`
-- Muted/subtle: white at 55% / 38%
-- Border: white at 8% / 14%
+- Muted/subtle: white at 58% / 48% (both clear 4.5:1 on the page)
+- Border/line: white at 8% / 16%
+- Fill: white at 6% / 10% — inputs and hover use fill, not borders
 - Primary control: white fill, `#141414` text
-- Status only: success `#3DD68C`, warning `#E8B931`, danger `#F07167`
-- Light theme tokens exist on `[data-theme="light"]` for later use. Dark is default.
+- Danger only: `#F07167` dark, `#C0392F` light
+- Project colors are a greyscale ramp. Any legacy hex is collapsed to its
+  perceived lightness by `monoTint()` so old data never reintroduces hue.
+- Light theme tokens exist on `[data-theme="light"]`. Dark is default.
 
 ## Type
 
@@ -26,21 +32,39 @@ Dark operational workspace. Charcoal layers, inverted white controls, no extra b
 
 ## Layout
 
+Operate mode: content pins under the header. Never vertically center a
+workspace page — that leaves a void above the work.
+
 - Desktop (lg+ / iPad landscape): 248px sidebar | main
 - Collapsible sidebar to 72px on desktop
 - Phone: header + content + bottom nav (5 destinations)
 - iPad portrait: hamburger + overlay drawer, no bottom nav; 44px tap targets; horizontal Kanban/calendar scroll
+- Main pad: 16px / 24px (`px-4 py-5` → `md:px-6 md:py-6`)
+- Data pages (dashboard, projects, notes, tasks, calendar) use the full pane
+- Forms (settings, note body, inbox capture) stay a reading measure, left-aligned
+- Inbox: capture rail ~22rem | unsorted list
+- Notes: 320px list rail | editor, filling leftover viewport height
+- Section stack `gap-7`–`gap-8`; heading to content `gap-3`; row cluster tighter than section
 - Active nav: white pill, dark text
 - Icons in chrome: 16px, stroke 1.25, simple geometry
 
 ## Components
 
-- Radius 10–12px
-- Elevation: 1px border, no glow
+Pages are lists, not card walls. A row is a hairline bottom border, a 14px
+title, a 12px meta line, and a right-aligned tabular value. Cards survive only
+where an object is genuinely draggable (Kanban) — never nested inside another
+card, never as page scaffolding, and never as a metric-tile grid.
+
+- Radius: 6px inner, 8px controls and rows, 12px dialogs
+- Elevation: 1px border; shadow only on overlays
+- Inputs are fill-on-hover, not bordered boxes
+- One create action lives in the header; nothing duplicates it
 - Dialogs interrupt for create/edit/delete
-- Empty states explain the next action
+- Empty states are one sentence with the next action linked inline
 - Toasts confirm mutations
 
 ## Signature
 
-Inverted white pill for the current place in the workspace. The first viewport is “what do I do today,” not a grid of vanity metrics.
+Inverted white pill for the current place in the workspace — the only filled
+element on screen, so the eye finds it instantly. The first viewport is “what do
+I do today,” read as text, not as a grid of vanity metrics.

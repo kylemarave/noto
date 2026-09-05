@@ -56,6 +56,10 @@ export const getCurrentUser = cache(async () => {
 
 export const requireUser = cache(async () => {
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  // The proxy only verifies the token's signature, so a session whose user row
+  // is gone reads as authenticated there and unauthenticated here. Send it
+  // through /logout to drop the cookie; redirecting straight to /login would
+  // bounce back off the proxy forever.
+  if (!user) redirect("/logout");
   return user;
 });

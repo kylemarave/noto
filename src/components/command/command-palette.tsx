@@ -64,12 +64,12 @@ export function CommandPalette({
     <div className="fixed inset-0 z-50">
       <button
         type="button"
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/60"
         aria-label="Close search"
         onClick={() => onOpenChange(false)}
       />
       <Command
-        className="absolute top-[max(12%,env(safe-area-inset-top))] left-1/2 max-h-[min(32rem,calc(100dvh-2rem))] w-[min(560px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-[12px] border border-border bg-surface shadow-[0_16px_40px_rgba(0,0,0,0.4)]"
+        className="absolute top-[max(12%,env(safe-area-inset-top))] left-1/2 max-h-[min(32rem,calc(100dvh-2rem))] w-[min(560px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-lg border border-line bg-surface shadow-[0_24px_60px_rgba(0,0,0,0.5)]"
         shouldFilter={false}
       >
         <div className="flex h-14 items-center gap-3 border-b border-border px-4">
@@ -159,7 +159,7 @@ function Group({
           key={item.id}
           value={`${heading}-${item.id}`}
           onSelect={() => onSelect(item.href)}
-          className="flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 py-2.5 text-13 data-[selected=true]:bg-fill"
+          className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-md px-2 py-2.5 text-13 text-muted data-[selected=true]:bg-fill data-[selected=true]:text-text"
         >
           {icon}
           <span className="truncate">{item.label}</span>

@@ -75,9 +75,16 @@ export const getCalendarTasks = cache(async (userId: string) => {
   });
 });
 
-export const getNotes = cache(async (userId: string, options?: { archived?: boolean }) => {
+export const getNotes = cache(async (
+  userId: string,
+  options?: { archived?: boolean | "all" },
+) => {
+  const archived = options?.archived ?? false;
   return db.note.findMany({
-    where: { userId, archived: options?.archived ?? false },
+    where: {
+      userId,
+      ...(archived === "all" ? {} : { archived }),
+    },
     include: noteInclude,
     orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
   });
@@ -117,6 +124,14 @@ export const getInboxCount = cache(async (userId: string) => {
   return db.inboxItem.count({ where: { userId, processed: false } });
 });
 
+export const getRecentInbox = cache(async (userId: string) => {
+  return db.inboxItem.findMany({
+    where: { userId, processed: true },
+    orderBy: { updatedAt: "desc" },
+    take: 5,
+  });
+});
+
 export const getFavorites = cache(async (userId: string) => {
   return db.favorite.findMany({
     where: { userId },
@@ -138,8 +153,18 @@ export const getDashboard = cache(async (userId: string) => {
   const todayEnd = endOfDay(now);
   const upcomingEnd = endOfDay(addDays(now, 7));
 
-  const [todayTasks, upcomingTasks, events, notes, projects, statusCounts, inboxCount] =
-    await Promise.all([
+  const [
+    todayTasks,
+    overdueTasks,
+    unscheduledTasks,
+    upcomingTasks,
+    events,
+    notes,
+    projects,
+    statusCounts,
+    inboxPreview,
+    inboxCount,
+  ] = await Promise.all([
       db.task.findMany({
         where: {
           userId,
@@ -148,6 +173,26 @@ export const getDashboard = cache(async (userId: string) => {
         },
         include: taskInclude,
         orderBy: { dueDate: "asc" },
+      }),
+      db.task.findMany({
+        where: {
+          userId,
+          status: { not: "DONE" },
+          dueDate: { lt: todayStart },
+        },
+        include: taskInclude,
+        orderBy: { dueDate: "asc" },
+        take: 8,
+      }),
+      db.task.findMany({
+        where: {
+          userId,
+          status: { not: "DONE" },
+          dueDate: null,
+        },
+        include: taskInclude,
+        orderBy: { updatedAt: "desc" },
+        take: 8,
       }),
       db.task.findMany({
         where: {
@@ -180,7 +225,6 @@ export const getDashboard = cache(async (userId: string) => {
           name: true,
           color: true,
           description: true,
-          _count: { select: { notes: true, tasks: true } },
           tasks: { select: { status: true } },
         },
       }),
@@ -188,6 +232,11 @@ export const getDashboard = cache(async (userId: string) => {
         by: ["status"],
         where: { userId },
         _count: { _all: true },
+      }),
+      db.inboxItem.findMany({
+        where: { userId, processed: false },
+        orderBy: { createdAt: "desc" },
+        take: 3,
       }),
       getInboxCount(userId),
     ]);
@@ -205,11 +254,14 @@ export const getDashboard = cache(async (userId: string) => {
 
   return {
     todayTasks,
+    overdueTasks,
+    unscheduledTasks,
     upcomingTasks,
     events,
     notes,
     projects,
     stats,
+    inboxPreview,
     inboxCount,
   };
 });

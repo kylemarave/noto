@@ -75,7 +75,7 @@ export function AppShell({
   return (
     <NavPendingProvider>
       <QuickAddContext.Provider value={() => setQuickOpen(true)}>
-        <div className="flex min-h-dvh bg-bg text-text">
+        <div className="flex h-dvh overflow-hidden bg-bg text-text">
           {menuOpen ? (
             <button
               type="button"
@@ -91,20 +91,18 @@ export function AppShell({
             overlayOpen={menuOpen}
             onToggle={toggleCollapsed}
             onCloseOverlay={() => setMenuOpen(false)}
-            onQuickAdd={() => {
-              setMenuOpen(false);
-              setQuickOpen(true);
-            }}
             inboxCount={inboxCount}
           />
-          <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             <Header
               onSearch={() => setSearchOpen(true)}
               onQuickAdd={() => setQuickOpen(true)}
               onMenu={() => setMenuOpen(true)}
             />
-            <main className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 pb-[calc(5.5rem+env(safe-area-inset-bottom))] text-14 md:px-6 md:pb-6">
-              {children}
+            <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain text-14">
+              <div className="flex min-h-full flex-col px-4 py-5 pb-[calc(6.25rem+env(safe-area-inset-bottom))] md:px-6 md:py-6 md:pb-6">
+                {children}
+              </div>
             </main>
           </div>
           <MobileBottomNav inboxCount={inboxCount} />

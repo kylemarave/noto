@@ -47,6 +47,7 @@ export async function deleteInboxItemAction(id: string) {
 export async function convertInboxItemAction(
   id: string,
   destination: "task" | "note" | "event" | "project",
+  projectId?: string | null,
 ) {
   const user = await requireUser();
   const item = await db.inboxItem.findFirst({ where: { id, userId: user.id } });
@@ -55,15 +56,21 @@ export async function convertInboxItemAction(
   let result:
     | { error: string }
     | { ok: true; id?: string };
+  const project = projectId || null;
 
   if (destination === "task") {
     result = await createTaskAction({
       title: item.title,
       description: item.body,
       status: "TODO",
+      projectId: project,
     });
   } else if (destination === "note") {
-    result = await createNoteAction({ title: item.title, content: item.body });
+    result = await createNoteAction({
+      title: item.title,
+      content: item.body,
+      projectId: project,
+    });
   } else if (destination === "project") {
     result = await createProjectAction({
       name: item.title,
@@ -79,6 +86,7 @@ export async function convertInboxItemAction(
       description: item.body,
       startAt: start.toISOString(),
       endAt: end.toISOString(),
+      projectId: project,
     });
   }
 

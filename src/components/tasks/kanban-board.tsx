@@ -20,29 +20,46 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
-import { TASK_COLUMNS } from "@/lib/constants";
-import { formatDue } from "@/lib/dates";
+import { TASK_COLUMNS, TASK_PRIORITIES } from "@/lib/constants";
+import { formatDue, isOverdue } from "@/lib/dates";
 import { priorityLabel, taskStatusLabel } from "@/lib/labels";
 import { moveTaskAction } from "@/server/actions/tasks";
 import type { ProjectOption, TaskWithRelations } from "@/server/queries";
 import { TaskDialog } from "./task-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { EmptyState } from "@/components/ui/empty";
+import { PageFill, TextAction, Toolbar } from "@/components/layout/page";
 import { cn } from "@/lib/utils";
+
+const STATUS_FILTERS = [
+  { value: "ALL", label: "All statuses" },
+  { value: "TODO", label: "To do" },
+  { value: "IN_PROGRESS", label: "In progress" },
+  { value: "REVIEW", label: "Review" },
+  { value: "DONE", label: "Done" },
+] as const;
 
 export function KanbanBoard({
   tasks,
   projects,
   defaultProjectId,
+  initialStatus,
+  fill = true,
 }: {
   tasks: TaskWithRelations[];
   projects: ProjectOption[];
   defaultProjectId?: string;
+  initialStatus?: string;
+  fill?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [priority, setPriority] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState(
+    STATUS_FILTERS.some((item) => item.value === initialStatus)
+      ? initialStatus!
+      : "ALL",
+  );
   const [items, setItems] = useState(tasks);
 
   useEffect(() => {
@@ -57,9 +74,13 @@ export function KanbanBoard({
       const haystack = `${task.title} ${task.description} ${task.tags.map((item) => item.tag.name).join(" ")}`.toLowerCase();
       const matchesQuery = haystack.includes(query.toLowerCase());
       const matchesPriority = priority === "ALL" || task.priority === priority;
-      return matchesQuery && matchesPriority;
+      const matchesStatus =
+        statusFilter === "ALL" ||
+        task.status === statusFilter ||
+        (statusFilter === "TODO" && task.status === "BACKLOG");
+      return matchesQuery && matchesPriority && matchesStatus;
     });
-  }, [items, query, priority]);
+  }, [items, query, priority, statusFilter]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 12 } }),
@@ -108,36 +129,43 @@ export function KanbanBoard({
 
   const activeTask = items.find((task) => task.id === activeId);
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
+  const board = (
+    <>
+      <Toolbar>
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search tasks"
-          className="max-w-xs min-h-11"
+          className="w-full sm:max-w-xs"
+          aria-label="Search tasks"
         />
-        <select
+        <Select
+          className="w-full min-w-36 sm:w-auto"
+          value={statusFilter}
+          onValueChange={setStatusFilter}
+          options={STATUS_FILTERS.map((item) => ({
+            value: item.value,
+            label: item.label,
+          }))}
+        />
+        <Select
+          className="w-full min-w-36 sm:w-auto"
           value={priority}
-          onChange={(event) => setPriority(event.target.value)}
-          className="h-11 min-w-36 rounded-[10px] border border-border bg-fill px-3 text-13"
-        >
-          <option value="ALL">All priorities</option>
-          <option value="LOW">Low</option>
-          <option value="MEDIUM">Medium</option>
-          <option value="HIGH">High</option>
-          <option value="URGENT">Urgent</option>
-        </select>
-        <Button className="ml-auto" onClick={() => setCreateOpen(true)}>
-          New task
-        </Button>
-      </div>
+          onValueChange={setPriority}
+          options={[
+            { value: "ALL", label: "All priorities" },
+            ...TASK_PRIORITIES.map((item) => ({ value: item.id, label: item.label })),
+          ]}
+        />
+      </Toolbar>
 
       {tasks.length === 0 ? (
         <EmptyState
           title="No tasks yet."
           description="Create your first task to start organizing your work."
-          action={<Button onClick={() => setCreateOpen(true)}>+ Create Task</Button>}
+          action={
+            <TextAction onClick={() => setCreateOpen(true)}>New task</TextAction>
+          }
         />
       ) : (
         <DndContext
@@ -146,8 +174,20 @@ export function KanbanBoard({
           onDragStart={onDragStart}
           onDragEnd={(event) => void onDragEnd(event)}
         >
-          <div className="-mx-4 flex gap-3 overflow-x-auto overscroll-x-contain px-4 pb-3 snap-x snap-mandatory scrollbar-thin md:mx-0 md:px-0 md:snap-none">
-            {TASK_COLUMNS.map((column) => {
+          <div
+            className={cn(
+              "-mx-4 flex gap-4 overflow-x-auto overscroll-x-contain px-4 pb-3 snap-x snap-mandatory scrollbar-thin md:mx-0 md:px-0 md:snap-none lg:overflow-x-visible",
+              fill && "min-h-0 flex-1",
+            )}
+          >
+            {(statusFilter === "ALL"
+              ? TASK_COLUMNS
+              : TASK_COLUMNS.filter(
+                  (column) =>
+                    column.id === statusFilter ||
+                    (statusFilter === "TODO" && column.id === "BACKLOG"),
+                )
+            ).map((column) => {
               const columnTasks = filtered
                 .filter((task) => task.status === column.id)
                 .sort((a, b) => a.position - b.position);
@@ -157,6 +197,7 @@ export function KanbanBoard({
                   id={column.id}
                   label={column.label}
                   count={columnTasks.length}
+                  fill={fill}
                 >
                   <SortableContext
                     items={columnTasks.map((task) => task.id)}
@@ -194,30 +235,41 @@ export function KanbanBoard({
         task={editing}
         projects={projects}
       />
-    </div>
+    </>
   );
+
+  if (fill) {
+    return <PageFill className="gap-5">{board}</PageFill>;
+  }
+
+  return <div className="flex w-full flex-col gap-5">{board}</div>;
 }
 
 function KanbanColumn({
   id,
   label,
   count,
+  fill,
   children,
 }: {
   id: string;
   label: string;
   count: number;
+  fill?: boolean;
   children: React.ReactNode;
 }) {
   const { setNodeRef } = useDroppable({ id });
   return (
     <section
       ref={setNodeRef}
-      className="flex min-h-[min(420px,70dvh)] w-[min(280px,78vw)] shrink-0 snap-start flex-col gap-2 rounded-[10px] border border-border bg-surface p-3 md:w-[260px]"
+      className={cn(
+        "flex w-[min(272px,78vw)] shrink-0 snap-start flex-col gap-3 md:w-[248px] lg:w-auto lg:min-w-0 lg:flex-1 lg:shrink",
+        fill ? "min-h-full" : "min-h-[min(360px,55dvh)]",
+      )}
     >
-      <div className="flex items-center justify-between px-1">
-        <h2 className="text-13 font-medium">{label}</h2>
-        <span className="text-12 text-subtle tabular">{count}</span>
+      <div className="flex items-baseline gap-2 border-b border-border pb-2">
+        <h2 className="text-13 font-medium text-muted">{label}</h2>
+        <span className="tabular text-12 text-subtle">{count}</span>
       </div>
       <div className="flex flex-1 flex-col gap-2">{children}</div>
     </section>
@@ -251,44 +303,36 @@ export function TaskCard({
       {...(overlay ? {} : sortable.listeners)}
       onClick={onClick}
       className={cn(
-        "flex w-full min-h-11 cursor-pointer flex-col gap-2 rounded-[10px] border border-border bg-bg p-3 text-left hover:border-line",
-        overlay && "shadow-[0_12px_24px_rgba(0,0,0,0.35)]",
+        "flex w-full min-h-11 cursor-pointer flex-col gap-2 rounded-md border border-border bg-surface p-3 text-left transition-colors hover:border-line",
+        overlay && "border-line shadow-[0_10px_28px_rgba(0,0,0,0.45)]",
       )}
     >
-      <p className="text-14 font-medium">{task.title}</p>
-      <div className="flex flex-wrap items-center gap-1.5">
-        <Badge
-          tone={
-            task.priority === "URGENT"
-              ? "danger"
-              : task.priority === "HIGH"
-                ? "warning"
-                : "neutral"
-          }
-        >
-          {priorityLabel(task.priority)}
-        </Badge>
-        {task.project ? (
-          <span className="text-12 text-muted">{task.project.name}</span>
+      <p className="text-13 leading-snug">{task.title}</p>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-12 text-subtle">
+        {task.priority === "URGENT" || task.priority === "HIGH" ? (
+          <span
+            className={cn(
+              task.priority === "URGENT" ? "text-danger" : "text-muted font-medium",
+            )}
+          >
+            {priorityLabel(task.priority)}
+          </span>
         ) : null}
+        {task.project ? <span className="truncate">{task.project.name}</span> : null}
         {formatDue(task.dueDate) ? (
-          <span className="text-12 text-subtle">{formatDue(task.dueDate)}</span>
+          <span className={cn("tabular", isOverdue(task.dueDate) && "text-danger")}>
+            {formatDue(task.dueDate)}
+          </span>
         ) : null}
+        {task.subtasks.length > 0 ? (
+          <span className="tabular">
+            {done}/{task.subtasks.length}
+          </span>
+        ) : null}
+        {task.tags.map((item) => (
+          <span key={item.tagId}>#{item.tag.name}</span>
+        ))}
       </div>
-      {task.subtasks.length > 0 ? (
-        <p className="text-12 text-subtle">
-          {done}/{task.subtasks.length} subtasks
-        </p>
-      ) : null}
-      {task.tags.length > 0 ? (
-        <div className="flex flex-wrap gap-1">
-          {task.tags.map((item) => (
-            <span key={item.tagId} className="text-12 text-subtle">
-              #{item.tag.name}
-            </span>
-          ))}
-        </div>
-      ) : null}
       <span className="sr-only">{taskStatusLabel(task.status)}</span>
     </button>
   );

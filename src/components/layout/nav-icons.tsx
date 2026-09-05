@@ -5,7 +5,6 @@ import {
   Grid2x2,
   Inbox,
   List,
-  Settings2,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

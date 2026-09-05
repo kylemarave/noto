@@ -5,22 +5,20 @@
   --bg: #141414;
   --surface: #181818;
   --text: #ffffff;
-  --text-muted: rgba(255, 255, 255, 0.55);
-  --text-subtle: rgba(255, 255, 255, 0.38);
+  --text-muted: rgba(255, 255, 255, 0.58);
+  --text-subtle: rgba(255, 255, 255, 0.48);
   --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.16);
   --fill: rgba(255, 255, 255, 0.06);
   --fill-strong: rgba(255, 255, 255, 0.1);
   --primary: #ffffff;
   --on-primary: #141414;
-  --success: #3dd68c;
-  --warning: #e8b931;
   --danger: #f07167;
-  --ring: rgba(255, 255, 255, 0.28);
-  --radius: 10px;
-  --icon: 26px;
+  --ring: rgba(255, 255, 255, 0.4);
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 12px;
   --tracking: -0.15px;
-  --sidebar: 248px;
 }
 
 [data-theme="light"] {
@@ -28,15 +26,16 @@
   --bg: #f3f3f3;
   --surface: #ffffff;
   --text: #141414;
-  --text-muted: rgba(20, 20, 20, 0.62);
-  --text-subtle: rgba(20, 20, 20, 0.42);
-  --border: rgba(20, 20, 20, 0.08);
-  --border-strong: rgba(20, 20, 20, 0.14);
+  --text-muted: rgba(20, 20, 20, 0.7);
+  --text-subtle: rgba(20, 20, 20, 0.62);
+  --border: rgba(20, 20, 20, 0.09);
+  --border-strong: rgba(20, 20, 20, 0.18);
   --fill: rgba(20, 20, 20, 0.04);
   --fill-strong: rgba(20, 20, 20, 0.08);
   --primary: #141414;
   --on-primary: #ffffff;
-  --ring: rgba(20, 20, 20, 0.24);
+  --danger: #c0392f;
+  --ring: rgba(20, 20, 20, 0.36);
 }
 
 @theme inline {
@@ -48,17 +47,21 @@
   --color-border: var(--border);
   --color-line: var(--border-strong);
   --color-fill: var(--fill);
+  --color-fill-strong: var(--fill-strong);
   --color-primary: var(--primary);
   --color-primary-fg: var(--on-primary);
   --color-on-primary: var(--on-primary);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r);
+  --radius-lg: var(--r-lg);
   --font-sans: var(--font-inter);
 }
 
 * {
   border-color: var(--border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
 }
 
 html,
@@ -77,6 +80,7 @@ body {
 
 body {
   -webkit-font-smoothing: antialiased;
+  caret-color: var(--text);
 }
 
 ::selection {
@@ -91,6 +95,7 @@ body {
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+  border-radius: var(--r-sm);
 }
 
 input,
@@ -106,9 +111,32 @@ textarea::placeholder {
   color: var(--text-subtle);
 }
 
+/* The workspace's one signature move: the current place inverts. */
+.inverse {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 3px solid var(--bg);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-subtle);
+}
+
 .scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) transparent;
   -webkit-overflow-scrolling: touch;
 }
 

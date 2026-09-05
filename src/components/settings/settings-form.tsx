@@ -5,12 +5,19 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   logoutAction,
   updatePasswordAction,
   updateProfileAction,
 } from "@/server/actions/auth";
 import type { WorkspaceUser } from "@/server/queries";
+import { Section } from "@/components/layout/page";
+
+const THEMES = [
+  { id: "dark", label: "Dark" },
+  { id: "light", label: "Light" },
+] as const;
 
 export function SettingsForm({ user }: { user: WorkspaceUser }) {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
@@ -27,11 +34,29 @@ export function SettingsForm({ user }: { user: WorkspaceUser }) {
   }
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-8">
-      <section className="flex flex-col gap-3">
-        <h2 className="text-14 font-medium">Profile</h2>
+    <div className="flex w-full max-w-xl flex-col gap-8">
+      <Section title="Appearance">
+        <div className="flex w-fit gap-0.5 rounded-md bg-fill p-0.5">
+          {THEMES.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => applyTheme(item.id)}
+              aria-pressed={theme === item.id}
+              className={cn(
+                "h-9 cursor-pointer rounded-sm px-4 text-13 font-medium transition-colors",
+                theme === item.id ? "inverse" : "text-muted hover:text-text",
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Profile">
         <form
-          className="flex flex-col gap-3 rounded-[10px] border border-border bg-surface p-4"
+          className="flex flex-col gap-3"
           action={async (formData) => {
             const result = await updateProfileAction(formData);
             if (result && "error" in result) toast.error(result.error);
@@ -48,12 +73,11 @@ export function SettingsForm({ user }: { user: WorkspaceUser }) {
             Save name
           </Button>
         </form>
-      </section>
+      </Section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-14 font-medium">Password</h2>
+      <Section title="Password">
         <form
-          className="flex flex-col gap-3 rounded-[10px] border border-border bg-surface p-4"
+          className="flex flex-col gap-3"
           action={async (formData) => {
             const result = await updatePasswordAction(formData);
             if (result && "error" in result) toast.error(result.error);
@@ -70,31 +94,14 @@ export function SettingsForm({ user }: { user: WorkspaceUser }) {
             Update password
           </Button>
         </form>
-      </section>
+      </Section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-14 font-medium">Appearance</h2>
-        <div className="flex gap-2 rounded-[10px] border border-border bg-surface p-4">
-          <Button
-            variant={theme === "dark" ? "primary" : "outline"}
-            onClick={() => applyTheme("dark")}
-          >
-            Dark
-          </Button>
-          <Button
-            variant={theme === "light" ? "primary" : "outline"}
-            onClick={() => applyTheme("light")}
-          >
-            Light
-          </Button>
-        </div>
-      </section>
-
-      <form action={logoutAction}>
-        <Button variant="outline" type="submit">
+      <form action={logoutAction} className="border-t border-border pt-6">
+        <Button variant="ghost" size="sm" type="submit">
           Sign out
         </Button>
       </form>
     </div>
   );
 }
+

@@ -52,12 +52,12 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           />
         </Field>
         {error ? <p className="text-13 text-danger">{error}</p> : null}
-        <Button type="submit" className="mt-2 min-h-11">
+        <Button type="submit" size="lg" className="mt-2 w-full">
           {mode === "login" ? "Sign in" : "Create account"}
         </Button>
       </form>
       {mode === "login" ? (
-        <p className="mt-4 rounded-[10px] border border-border bg-surface px-3 py-2 text-12 text-muted">
+        <p className="mt-4 rounded-md bg-fill px-3 py-2.5 text-12 text-subtle">
           Demo workspace: <span className="text-text">demo@noto.app</span> /{" "}
           <span className="text-text">noto-demo</span>
         </p>

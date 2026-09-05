@@ -4,20 +4,20 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] font-medium transition-colors duration-150 disabled:pointer-events-none disabled:opacity-40",
+  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md font-medium leading-none transition-colors duration-100 disabled:pointer-events-none disabled:opacity-40",
   {
     variants: {
       variant: {
         primary: "inverse hover:opacity-90",
-        ghost: "text-text hover:bg-fill",
-        outline: "border border-line bg-transparent text-text hover:bg-fill",
+        ghost: "text-muted hover:bg-fill hover:text-text",
+        outline: "bg-fill text-text hover:bg-fill-strong",
         danger: "bg-danger text-white hover:opacity-90",
       },
       size: {
-        sm: "h-8 px-3 text-13",
-        md: "h-9 px-3.5 text-14",
+        sm: "h-8 px-2.5 text-12",
+        md: "h-9 px-3.5 text-13",
         lg: "h-10 px-4 text-14",
-        icon: "size-9",
+        icon: "size-8",
       },
     },
     defaultVariants: {

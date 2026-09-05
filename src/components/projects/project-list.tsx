@@ -3,80 +3,95 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Star } from "lucide-react";
+import { toast } from "sonner";
 import { projectStatusLabel } from "@/lib/labels";
+import { monoTint } from "@/lib/utils";
 import type { ProjectListItem } from "@/server/queries";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty";
-import { Badge } from "@/components/ui/badge";
+import { Page, TextAction } from "@/components/layout/page";
 import { ProjectDialog } from "./project-dialog";
 import { toggleFavoriteAction } from "@/server/actions/projects";
-import { toast } from "sonner";
 
 export function ProjectList({ projects }: { projects: ProjectListItem[] }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-13 text-muted">Projects connect tasks, notes, and dates.</p>
-        <Button onClick={() => setOpen(true)}>New project</Button>
-      </div>
+    <Page className="gap-6">
+      <p className="text-13 text-subtle">
+        Projects connect tasks, notes, and dates.
+      </p>
+
       {projects.length === 0 ? (
         <EmptyState
           title="No projects yet."
           description="Create a project to keep related work in one place."
-          action={<Button onClick={() => setOpen(true)}>+ Create project</Button>}
+          action={
+            <TextAction onClick={() => setOpen(true)}>New project</TextAction>
+          }
         />
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <ul className="-mx-2 flex flex-col">
           {projects.map((project) => {
             const done = project.tasks.filter((task) => task.status === "DONE").length;
             return (
-              <article
+              <li
                 key={project.id}
-                className="flex flex-col gap-3 rounded-[10px] border border-border bg-surface p-4"
+                className="flex items-center gap-1 border-b border-border last:border-b-0"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <Link href={`/projects/${project.id}`} className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="size-2.5 rounded-full"
-                        style={{ background: project.color }}
-                      />
-                      <h2 className="truncate text-14 font-medium">{project.name}</h2>
-                    </div>
-                  </Link>
-                  <button
-                    type="button"
-                    className="inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted hover:bg-fill hover:text-text"
-                    aria-label="Favorite"
-                    onClick={async () => {
-                      const result = await toggleFavoriteAction(project.id);
-                      if (result && "error" in result) toast.error(result.error);
-                    }}
-                  >
-                    <Star
-                      className="size-3.5"
-                      strokeWidth={1.25}
-                      fill={project.favorite ? "currentColor" : "none"}
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="touch-row grid min-w-0 flex-1 items-center gap-x-6 gap-y-1 rounded-md px-2 py-3 transition-colors hover:bg-fill sm:grid-cols-[minmax(0,1fr)_10rem_6.5rem]"
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span
+                      className="size-1.5 shrink-0 rounded-full"
+                      style={{ background: monoTint(project.color) }}
                     />
-                  </button>
-                </div>
-                <p className="line-clamp-2 text-13 text-muted">
-                  {project.description || "No description"}
-                </p>
-                <div className="flex items-center justify-between">
-                  <Badge>{projectStatusLabel(project.status)}</Badge>
-                  <p className="text-12 text-subtle">
+                    <span className="min-w-0">
+                      <span className="block truncate text-14 font-medium">
+                        {project.name}
+                      </span>
+                      <span className="mt-0.5 block truncate text-12 text-subtle">
+                        {project.description || "No description"}
+                      </span>
+                      <span className="mt-0.5 block text-12 text-subtle sm:hidden">
+                        {projectStatusLabel(project.status)}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="tabular hidden text-12 text-subtle sm:block">
                     {done}/{project._count.tasks} tasks · {project._count.notes} notes
-                  </p>
-                </div>
-              </article>
+                  </span>
+                  <span className="hidden text-12 text-subtle sm:block">
+                    {projectStatusLabel(project.status)}
+                  </span>
+                </Link>
+                <button
+                  type="button"
+                  className="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-subtle transition-colors hover:bg-fill hover:text-text"
+                  aria-label={
+                    project.favorite
+                      ? `Remove ${project.name} from favorites`
+                      : `Add ${project.name} to favorites`
+                  }
+                  aria-pressed={Boolean(project.favorite)}
+                  onClick={async () => {
+                    const result = await toggleFavoriteAction(project.id);
+                    if (result && "error" in result) toast.error(result.error);
+                  }}
+                >
+                  <Star
+                    className="size-3.5"
+                    strokeWidth={1.25}
+                    fill={project.favorite ? "currentColor" : "none"}
+                  />
+                </button>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
       <ProjectDialog open={open} onOpenChange={setOpen} />
-    </div>
+    </Page>
   );
 }

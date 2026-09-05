@@ -29,6 +29,7 @@ export function ProjectActions({
     <div className="flex flex-wrap gap-2">
       <Button
         variant="outline"
+        size="sm"
         onClick={async () => {
           const result = await toggleFavoriteAction(project.id);
           if (result && "error" in result) toast.error(result.error);
@@ -36,10 +37,10 @@ export function ProjectActions({
       >
         {project.favorite ? "Unfavorite" : "Favorite"}
       </Button>
-      <Button variant="outline" onClick={() => setEditOpen(true)}>
+      <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
         Edit
       </Button>
-      <Button variant="ghost" onClick={() => setConfirmOpen(true)}>
+      <Button variant="ghost" size="sm" onClick={() => setConfirmOpen(true)}>
         Delete
       </Button>
       <ProjectDialog open={editOpen} onOpenChange={setEditOpen} project={project} />

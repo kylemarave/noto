@@ -1,6 +1,5 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "./button";
 
 export function EmptyState({
   title,
@@ -16,24 +15,13 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-start gap-3 rounded-[10px] border border-border bg-surface px-5 py-8",
+        "flex flex-col items-start gap-2 border-t border-border py-8",
         className,
       )}
     >
       <h2 className="text-14 font-medium text-text">{title}</h2>
-      <p className="max-w-md text-13 text-muted">{description}</p>
-      {action}
+      <p className="max-w-sm text-13 text-subtle">{description}</p>
+      {action ? <div className="mt-2">{action}</div> : null}
     </div>
-  );
-}
-
-export function EmptyAction({
-  children,
-  ...props
-}: HTMLAttributes<HTMLButtonElement> & { children: ReactNode }) {
-  return (
-    <Button type="button" {...props}>
-      {children}
-    </Button>
   );
 }

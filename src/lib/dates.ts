@@ -21,6 +21,15 @@ export function formatDue(value?: Date | string | null) {
   return format(date, "MMM d");
 }
 
+export function isOverdue(value?: Date | string | null) {
+  if (!value) return false;
+  const date = typeof value === "string" ? new Date(value) : value;
+  if (Number.isNaN(date.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date.getTime() < today.getTime();
+}
+
 export function formatWhen(value: Date | string) {
   const date = typeof value === "string" ? new Date(value) : value;
   return format(date, "MMM d, h:mm a");

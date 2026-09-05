@@ -21,16 +21,16 @@ export function Select({
     <SelectPrimitive.Root value={value} onValueChange={onValueChange}>
       <SelectPrimitive.Trigger
         className={cn(
-          "flex h-11 w-full cursor-pointer items-center justify-between rounded-[10px] border border-border bg-fill px-3 text-14 text-text outline-none hover:border-line",
+          "flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-md bg-fill px-3 text-14 text-text outline-none transition-colors hover:bg-fill-strong",
           className,
         )}
       >
         <SelectPrimitive.Value placeholder={placeholder} />
-        <ChevronDown className="size-4 text-muted" />
+        <ChevronDown className="size-4 shrink-0 text-subtle" strokeWidth={1.25} />
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>
         <SelectPrimitive.Content
-          className="z-50 max-h-[min(20rem,50dvh)] overflow-hidden rounded-[10px] border border-border bg-surface p-1 shadow-[0_12px_32px_rgba(0,0,0,0.35)]"
+          className="z-50 max-h-[min(20rem,50dvh)] w-[var(--radix-select-trigger-width)] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-border bg-surface p-1 shadow-[0_12px_32px_rgba(0,0,0,0.35)]"
           position="popper"
           sideOffset={6}
           collisionPadding={16}
@@ -40,7 +40,7 @@ export function Select({
               <SelectPrimitive.Item
                 key={option.value}
                 value={option.value}
-                className="flex min-h-11 cursor-pointer items-center justify-between gap-4 rounded-md px-3 py-2 text-13 text-text outline-none data-highlighted:bg-fill"
+                className="flex min-h-9 cursor-pointer items-center justify-between gap-4 rounded-md px-3 py-1.5 text-13 text-text outline-none data-highlighted:bg-fill"
               >
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
                 <SelectPrimitive.ItemIndicator>

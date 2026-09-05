@@ -1,6 +1,3 @@
-import type { LabelHTMLAttributes } from "react";
-import { cn } from "@/lib/utils";
-
 export function Field({
   label,
   htmlFor,
@@ -16,11 +13,4 @@ export function Field({
       {children}
     </label>
   );
-}
-
-export function FieldHint({
-  className,
-  ...props
-}: LabelHTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("text-12 text-subtle", className)} {...props} />;
 }

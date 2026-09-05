@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogActions, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -163,24 +163,23 @@ export function TaskDialog({
                 placeholder="One per line"
               />
             </Field>
-            <div className="flex items-center justify-between pt-1">
-              {task ? (
+          </div>
+          <DialogActions
+            leading={
+              task ? (
                 <Button variant="ghost" onClick={() => setConfirmOpen(true)}>
                   Delete
                 </Button>
-              ) : (
-                <span />
-              )}
-              <div className="flex gap-2">
-                <Button variant="ghost" onClick={() => onOpenChange(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => void save()} disabled={saving}>
-                  {saving ? "Saving…" : "Save"}
-                </Button>
-              </div>
-            </div>
-          </div>
+              ) : undefined
+            }
+          >
+            <Button variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void save()} disabled={saving}>
+              {saving ? "Saving…" : "Save"}
+            </Button>
+          </DialogActions>
         </DialogContent>
       </Dialog>
       <ConfirmDialog

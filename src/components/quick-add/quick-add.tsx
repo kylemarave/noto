@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogActions, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -149,14 +149,14 @@ export function QuickAdd({
               />
             </Field>
           ) : null}
-          <div className="mt-1 flex justify-end gap-2">
+          <DialogActions>
             <Button variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button onClick={() => void submit()} disabled={saving}>
               {saving ? "Creating…" : "Create"}
             </Button>
-          </div>
+          </DialogActions>
         </div>
       </DialogContent>
     </Dialog>

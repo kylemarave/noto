@@ -8,8 +8,12 @@ alwaysApply: true
 - Product name is Noto. Dark theme is default.
 - Font: Inter 400/500 only. Letter-spacing -0.15px.
 - Type sizes only: 12px sidebar, 13px labels/captions, 14px main UI, 24px KPI numbers.
-- Colors: page `#141414`, surface `#181818`, text `#FFFFFF`. Muted text via white opacity. Semantic green/amber/red for status only.
-- Icons: 16px line icons, stroke 1.25. Simple geometry only — no notebook-and-pen composites. Favorites use a 6px color dot.
+- Colors: page `#141414`, surface `#181818`, text `#FFFFFF`. Muted text via white opacity. Monochrome throughout — red is the only hue, reserved for destructive actions and overdue dates.
+- Project colors are a greyscale ramp; pass any stored hex through `monoTint()`.
+- Icons: 16px line icons, stroke 1.25. Simple geometry only — no notebook-and-pen composites. Favorites use a 6px greyscale dot.
 - Active nav: white pill, dark text. Primary buttons: white fill, dark text.
+- Pages are dividered lists, not card grids. No cards as page scaffolding, no nested cards, no metric tiles.
+- Workspace pages pin under the header. Never vertically center a work surface.
+- One create action, in the header. Never duplicate it in the sidebar or page body.
 - No extra brand colors, heavy gradients, glassmorphism, or giant identical metric-card grids as page structure.
 - Phone: bottom nav. iPad portrait: overlay sidebar, 44px tap targets, no bottom nav. Desktop/iPad landscape: docked sidebar.

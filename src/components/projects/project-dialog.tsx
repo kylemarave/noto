@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogActions, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { PROJECT_COLORS, PROJECT_STATUSES } from "@/lib/constants";
 import { createProjectAction, updateProjectAction } from "@/server/actions/projects";
+import { cn } from "@/lib/utils";
 import type { ProjectListItem } from "@/server/queries";
 import { useRouter } from "next/navigation";
 
@@ -82,31 +83,36 @@ export function ProjectDialog({
             />
           </Field>
           <Field label="Color">
-            <div className="flex flex-wrap gap-2">
+            <div className="-ml-2.5 flex flex-wrap">
               {PROJECT_COLORS.map((value) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => setColor(value)}
-                  className="size-11 cursor-pointer rounded-full border border-line"
-                  style={{
-                    background: value,
-                    outline: color === value ? "2px solid var(--text)" : undefined,
-                    outlineOffset: 2,
-                  }}
-                  aria-label={value}
-                />
+                  className="flex size-11 cursor-pointer items-center justify-center rounded-md"
+                  aria-label={`Tone ${value}`}
+                  aria-pressed={color === value}
+                >
+                  <span
+                    className={cn(
+                      "size-4 rounded-full transition-shadow",
+                      color === value &&
+                        "ring-2 ring-text ring-offset-2 ring-offset-surface",
+                    )}
+                    style={{ background: value }}
+                  />
+                </button>
               ))}
             </div>
           </Field>
-          <div className="flex flex-wrap justify-end gap-2 pt-1">
+          <DialogActions>
             <Button variant="ghost" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button onClick={() => void save()} disabled={saving}>
               {saving ? "Saving…" : "Save"}
             </Button>
-          </div>
+          </DialogActions>
         </div>
       </DialogContent>
     </Dialog>

@@ -16,7 +16,8 @@ import {
 } from "date-fns";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { PageFill, Toolbar } from "@/components/layout/page";
+import { Dialog, DialogActions, DialogContent } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,10 +46,12 @@ export function CalendarView({
   events,
   tasks,
   projects,
+  fill = true,
 }: {
   events: EventRecord[];
   tasks: CalendarTask[];
   projects: ProjectOption[];
+  fill?: boolean;
 }) {
   const [view, setView] = useState<View>("month");
   const [cursor, setCursor] = useState(new Date());
@@ -94,17 +97,32 @@ export function CalendarView({
     else setCursor(addDays(cursor, direction));
   }
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-[10px] border border-border p-0.5">
+  const calendar = (
+    <>
+      <Toolbar>
+        <p className="w-full text-24 sm:mr-auto sm:w-auto">
+          {format(cursor, view === "month" ? "MMMM yyyy" : "MMM d, yyyy")}
+        </p>
+        <div className="flex items-center gap-0.5">
+          <Button variant="ghost" size="sm" onClick={() => shift(-1)} aria-label="Previous">
+            Prev
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setCursor(new Date())}>
+            Today
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => shift(1)} aria-label="Next">
+            Next
+          </Button>
+        </div>
+        <div className="flex gap-0.5 rounded-md bg-fill p-0.5">
           {(["month", "week", "day"] as View[]).map((item) => (
             <button
               key={item}
               type="button"
               onClick={() => setView(item)}
+              aria-pressed={view === item}
               className={cn(
-                "h-11 min-w-11 cursor-pointer rounded-md px-3 text-13 capitalize",
+                "h-8 cursor-pointer rounded-sm px-3 text-12 font-medium capitalize transition-colors",
                 view === item ? "inverse" : "text-muted hover:text-text",
               )}
             >
@@ -112,28 +130,17 @@ export function CalendarView({
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => shift(-1)}>
-            Prev
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setCursor(new Date())}>
-            Today
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => shift(1)}>
-            Next
-          </Button>
-        </div>
-        <p className="text-14 font-medium">{format(cursor, view === "month" ? "MMMM yyyy" : "MMM d, yyyy")}</p>
-        <Button className="ml-auto" onClick={() => { setEditing(null); setOpen(true); }}>
-          New event
-        </Button>
-      </div>
+      </Toolbar>
 
-      <div className="overflow-x-auto overscroll-x-contain rounded-[10px] scrollbar-thin">
+      <div className="min-h-0 flex-1 overflow-x-auto overscroll-x-contain rounded-lg scrollbar-thin">
         <div
           className={cn(
-            "grid min-w-[36rem] gap-px overflow-hidden rounded-[10px] border border-border bg-border md:min-w-0",
-            view === "month" ? "grid-cols-7" : view === "week" ? "grid-cols-7" : "grid-cols-1",
+            "grid h-full min-h-[28rem] min-w-[36rem] gap-px overflow-hidden rounded-lg border border-border bg-border md:min-w-0",
+            view === "month"
+              ? "grid-cols-7 grid-rows-[auto_repeat(6,minmax(4.5rem,1fr))]"
+              : view === "week"
+                ? "grid-cols-7 grid-rows-[auto_minmax(12rem,1fr)]"
+                : "grid-cols-1",
           )}
         >
         {view !== "day"
@@ -155,20 +162,27 @@ export function CalendarView({
                 setOpen(true);
               }}
               className={cn(
-                "flex min-h-28 cursor-pointer flex-col gap-1 bg-surface p-2 text-left hover:bg-fill md:min-h-24",
+                "flex min-h-0 cursor-pointer flex-col gap-1 bg-surface p-2 text-left transition-colors hover:bg-fill",
                 view === "month" && !isSameMonth(day, cursor) && "opacity-40",
-                isSameDay(day, new Date()) && "bg-fill",
               )}
             >
-              <span className="text-12 text-muted">{format(day, "d")}</span>
+              <span
+                className={cn(
+                  "tabular flex size-5 items-center justify-center rounded-full text-12",
+                  isSameDay(day, new Date()) ? "inverse font-medium" : "text-subtle",
+                )}
+              >
+                {format(day, "d")}
+              </span>
               {dayItems.slice(0, view === "month" ? 3 : 8).map((item) => (
                 <span
                   key={item.id}
-                  className="min-h-8 truncate rounded-md px-1.5 py-1 text-12"
-                  style={{
-                    background: item.kind === "task" ? "transparent" : "var(--fill)",
-                    border: item.kind === "task" ? "1px solid var(--border-strong)" : undefined,
-                  }}
+                  className={cn(
+                    "truncate rounded-sm px-1.5 py-1 text-12",
+                    item.kind === "task"
+                      ? "text-subtle ring-1 ring-border ring-inset"
+                      : "bg-fill-strong text-text",
+                  )}
                   onClick={(event) => {
                     event.stopPropagation();
                     if (item.event) {
@@ -181,6 +195,11 @@ export function CalendarView({
                   {item.title}
                 </span>
               ))}
+              {dayItems.length > (view === "month" ? 3 : 8) ? (
+                <span className="px-1.5 text-12 text-subtle">
+                  +{dayItems.length - (view === "month" ? 3 : 8)} more
+                </span>
+              ) : null}
             </button>
           );
         })}
@@ -210,8 +229,14 @@ export function CalendarView({
           setOpen(false);
         }}
       />
-    </div>
+    </>
   );
+
+  if (fill) {
+    return <PageFill className="gap-4">{calendar}</PageFill>;
+  }
+
+  return <div className="flex min-h-[28rem] flex-col gap-4">{calendar}</div>;
 }
 
 function EventDialog({
@@ -322,23 +347,22 @@ function EventDialog({
               ]}
             />
           </Field>
-          <div className="flex items-center justify-between pt-1">
-            {event ? (
-              <Button variant="ghost" onClick={onDelete}>
-                Delete
-              </Button>
-            ) : (
-              <span />
-            )}
-            <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => void save()} disabled={saving}>
-                {saving ? "Saving…" : "Save"}
-              </Button>
-            </div>
-          </div>
+          <DialogActions
+            leading={
+              event ? (
+                <Button variant="ghost" onClick={onDelete}>
+                  Delete
+                </Button>
+              ) : undefined
+            }
+          >
+            <Button variant="ghost" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => void save()} disabled={saving}>
+              {saving ? "Saving…" : "Save"}
+            </Button>
+          </DialogActions>
         </div>
       </DialogContent>
     </Dialog>

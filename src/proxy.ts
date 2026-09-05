@@ -10,6 +10,10 @@ function secret() {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Signing out must always reach its handler so the cookie actually clears.
+  if (pathname === "/logout") return NextResponse.next();
+
   const isPublic = PUBLIC_PATHS.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );

@@ -31,10 +31,9 @@ export const INBOX_KINDS: { id: InboxKind; label: string }[] = [
 
 export const PROJECT_COLORS = [
   "#FFFFFF",
-  "#A8B4C4",
-  "#7C9CBF",
-  "#8BBF9F",
-  "#E8B931",
-  "#F07167",
-  "#C4A7E7",
+  "#D4D4D4",
+  "#ABABAB",
+  "#8A8A8A",
+  "#6E6E6E",
+  "#565656",
 ];
